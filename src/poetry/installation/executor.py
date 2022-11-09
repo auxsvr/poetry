@@ -28,6 +28,7 @@ from poetry.utils.authenticator import Authenticator
 from poetry.utils.env import EnvCommandError
 from poetry.utils.helpers import atomic_open
 from poetry.utils.helpers import get_file_hash
+from poetry.utils.helpers import get_src_dir
 from poetry.utils.helpers import pluralize
 from poetry.utils.helpers import remove_directory
 from poetry.utils.pip import pip_install
@@ -503,7 +504,7 @@ class Executor:
 
         # If we have a VCS package, remove its source directory
         if package.source_type == "git":
-            src_dir = self._env.path / "src" / package.name
+            src_dir = get_src_dir(self._env) / package.name
             if src_dir.exists():
                 remove_directory(src_dir, force=True)
 
@@ -608,7 +609,7 @@ class Executor:
         assert package.source_url is not None
         source = Git.clone(
             url=package.source_url,
-            source_root=self._env.path / "src",
+            source_root=get_src_dir(self._env),
             revision=package.source_resolved_reference or package.source_reference,
         )
 

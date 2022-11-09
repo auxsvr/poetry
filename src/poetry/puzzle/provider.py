@@ -23,6 +23,7 @@ from poetry.core.version.markers import AnyMarker
 from poetry.core.version.markers import EmptyMarker
 from poetry.core.version.markers import MarkerUnion
 
+from poetry.config.config import Config
 from poetry.inspection.info import PackageInfo
 from poetry.inspection.info import PackageInfoError
 from poetry.mixology.incompatibility import Incompatibility
@@ -35,6 +36,7 @@ from poetry.puzzle.exceptions import OverrideNeeded
 from poetry.repositories.exceptions import PackageNotFound
 from poetry.utils.helpers import download_file
 from poetry.utils.helpers import get_file_hash
+from poetry.utils.helpers import get_src_dir
 from poetry.vcs.git import Git
 
 
@@ -357,8 +359,11 @@ class Provider:
             tag=dependency.tag,
             rev=dependency.rev,
             subdirectory=dependency.source_subdirectory,
-            source_root=self._source_root
-            or (self._env.path.joinpath("src") if self._env else None),
+            source_root=(
+                get_src_dir(self._env)
+                if self._env
+                else Path(Config().config["cache-dir"]).joinpath("src")
+            ),
         )
 
         self.validate_package_for_dependency(dependency=dependency, package=package)

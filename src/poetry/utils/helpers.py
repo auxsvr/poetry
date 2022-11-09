@@ -15,6 +15,7 @@ from typing import Any
 from typing import Iterator
 from typing import Mapping
 
+from poetry.config.config import Config
 from poetry.utils.constants import REQUESTS_TIMEOUT
 
 
@@ -26,6 +27,7 @@ if TYPE_CHECKING:
     from requests import Session
 
     from poetry.utils.authenticator import Authenticator
+    from poetry.utils.env import Env
 
 
 @contextmanager
@@ -263,3 +265,14 @@ def get_file_hash(path: Path, hash_name: str = "sha256") -> str:
             h.update(content)
 
     return h.hexdigest()
+
+
+def get_src_dir(env: Env) -> Path:
+    """Retrieve the VCS temporary directory depending on the environment env."""
+    from poetry.utils.env import SystemEnv
+
+    return (
+        Path(Config().config["cache-dir"])
+        if isinstance(env, SystemEnv)
+        else Path(env.path)
+    ) / "src"
